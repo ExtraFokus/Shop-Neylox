@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Affär ägs av TopSeccret</title>
+<style>
+  :root {
+    --bg: #0b0b0f;
+    --bg-2: #101016;
+    --surface: #15151d;
+    --surface-2: #1b1b25;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-strong: rgba(255, 255, 255, 0.14);
+    --text: #f2f2f7;
+    --text-dim: #a1a1b3;
+    --text-faint: #6e6e82;
+    --purple: #7c3aed;
+    --purple-light: #a78bfa;
+    --navy: #1e3a8a;
+    --navy-light: #60a5fa;
+    --gold: #e5c07b;
+    --warn: #f5a524;
+    --radius: 16px;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background:
+      radial-gradient(900px 500px at 85% -10%, rgba(124, 58, 237, 0.14), transparent 60%),
+      radial-gradient(700px 400px at -10% 10%, rgba(30, 58, 138, 0.16), transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    color: var(--text);
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* Top bar */
+  .topbar {
+    border-bottom: 1px solid var(--border);
+    background: rgba(11, 11, 15, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .topbar .wrap {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding-top: 12px; padding-bottom: 12px; flex-wrap: wrap;
+  }
+  .owner {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.85rem; color: var(--text-dim);
+  }
+  .owner strong { color: var(--text); font-weight: 600; }
+  .owner .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--purple-light); box-shadow: 0 0 10px var(--purple);
+  }
+
+  /* Nav */
+  .nav-wrap {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(11, 11, 15, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav {
+    display: flex; gap: 6px; padding: 10px 0; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  .tab {
+    appearance: none; border: 1px solid transparent; background: transparent;
+    color: var(--text-dim); font: inherit; font-size: 0.93rem; font-weight: 500;
+    padding: 9px 18px; border-radius: 999px; cursor: pointer; white-space: nowrap;
+    transition: color .2s, background .2s, border-color .2s;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .tab:focus-visible, .sort-btn:focus-visible, select:focus-visible {
+    outline: 2px solid var(--purple-light); outline-offset: 2px;
+  }
+  .tab.active {
+    color: #fff; background: linear-gradient(135deg, rgba(124,58,237,0.35), rgba(124,58,237,0.15));
+    border-color: rgba(167, 139, 250, 0.4);
+  }
+
+  main { padding: 28px 0 10px; }
+
+  /* Update banner */
+  .banner {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(30,58,138,0.12));
+    border: 1px solid rgba(167, 139, 250, 0.25);
+    border-radius: var(--radius);
+    padding: 16px 20px; margin-bottom: 28px;
+  }
+  .banner .icon {
+    flex: none; width: 34px; height: 34px; border-radius: 10px;
+    display: grid; place-items: center;
+    background: rgba(167,139,250,0.15); color: var(--purple-light);
+    font-weight: 700; font-size: 1rem;
+  }
+  .banner p { color: var(--text-dim); font-size: 0.93rem; }
+  .banner .date {
+    display: inline-block; margin-left: 4px; color: var(--text); font-weight: 600;
+    background: rgba(255,255,255,0.07); border: 1px solid var(--border-strong);
+    padding: 1px 10px; border-radius: 999px; font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 14px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .toolbar .count { color: var(--text-faint); font-size: 0.9rem; }
+  .sort-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .sort-label { color: var(--text-faint); font-size: 0.82rem; text-transform: uppercase; letter-spacing: .08em; }
+
+  .seg {
+    display: inline-flex; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 4px; gap: 2px;
+  }
+  .sort-btn {
+    appearance: none; border: 0; background: transparent; color: var(--text-dim);
+    font: inherit; font-size: 0.86rem; padding: 7px 14px; border-radius: 9px; cursor: pointer;
+    transition: background .2s, color .2s;
+  }
+  .sort-btn:hover { color: var(--text); }
+  .sort-btn.active { background: var(--surface-2); color: #fff; box-shadow: inset 0 0 0 1px var(--border-strong); }
+
+  .sort-select { display: none; }
+  select {
+    appearance: none; -webkit-appearance: none;
+    background: var(--surface) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23a1a1b3' stroke-width='1.6' stroke-linecap='round'/></svg>") no-repeat right 14px center;
+    color: var(--text); border: 1px solid var(--border-strong); border-radius: 12px;
+    padding: 10px 38px 10px 14px; font: inherit; font-size: 0.9rem; cursor: pointer;
+  }
+
+  /* Grid & cards */
+  .grid {
+    display: grid; gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  }
+  .card {
+    position: relative; display: flex; flex-direction: column; gap: 14px;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; box-shadow: var(--shadow);
+    transition: transform .2s ease, border-color .2s ease;
+    animation: rise .35s ease both;
+  }
+  .card:hover { transform: translateY(-3px); border-color: rgba(167,139,250,0.35); }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .card h3 { font-size: 1.28rem; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
+  .price-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .price { font-size: 1.5rem; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .price small { font-size: 0.95rem; font-weight: 600; margin-left: 2px; }
+  .unit { color: var(--text-dim); font-size: 0.95rem; }
+  .info {
+    display: inline-flex; width: fit-content; align-items: center; gap: 6px;
+    font-size: 0.8rem; color: var(--text-dim);
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 999px;
+  }
+  .card-foot {
+    margin-top: auto; display: flex; align-items: center; gap: 8px;
+    padding-top: 14px; border-top: 1px solid var(--border);
+  }
+
+  /* Badges */
+  .badge {
+    display: inline-grid; place-items: center; flex: none;
+    width: 28px; height: 28px; border-radius: 8px;
+    font-weight: 800; font-size: 0.85rem; color: #fff; letter-spacing: 0;
+    cursor: help;
+  }
+  .badge.t { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 2px 10px rgba(124,58,237,0.45); }
+  .badge.m { background: linear-gradient(135deg, #2748b5, #172c6e); box-shadow: 0 2px 10px rgba(30,58,138,0.55); }
+  .badge.w {
+    background: rgba(245,165,36,0.14); border: 1px solid rgba(245,165,36,0.4);
+    font-size: 0.85rem;
+  }
+  .foot-text { color: var(--text-faint); font-size: 0.8rem; margin-left: 4px; }
+
+  /* Empty state */
+  .empty {
+    text-align: center; padding: 70px 20px;
+    border: 1px dashed var(--border-strong); border-radius: var(--radius);
+    background: linear-gradient(180deg, var(--surface), transparent);
+  }
+  .empty .badge { width: 48px; height: 48px; border-radius: 14px; font-size: 1.3rem; margin-bottom: 18px; cursor: default; }
+  .empty p { color: var(--text-dim); font-size: 1.05rem; }
+
+  /* Start page */
+  .intro { max-width: 640px; margin-bottom: 26px; color: var(--text-dim); font-size: 1.02rem; }
+  .intro strong { color: var(--text); }
+  .tiles { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 8px; }
+  .tile {
+    text-align: left; font: inherit; color: inherit; cursor: pointer;
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; box-shadow: var(--shadow);
+    transition: transform .2s, border-color .2s;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .tile:hover { transform: translateY(-3px); border-color: rgba(167,139,250,0.4); }
+  .tile .top { display: flex; align-items: center; justify-content: space-between; }
+  .tile h3 { font-size: 1.15rem; font-weight: 650; }
+  .tile p { color: var(--text-dim); font-size: 0.9rem; }
+  .tile .arrow { color: var(--purple-light); font-size: 0.88rem; font-weight: 600; margin-top: 4px; }
+
+  /* Info section */
+  .info-section { margin-top: 44px; padding-bottom: 20px; }
+  .info-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    display: grid; gap: 22px; grid-template-columns: 1fr 1fr;
+  }
+  .info-box h4 {
+    font-size: 0.78rem; text-transform: uppercase; letter-spacing: .1em;
+    color: var(--text-faint); margin-bottom: 12px; font-weight: 600;
+  }
+  .info-box ul { list-style: none; display: grid; gap: 12px; }
+  .info-box li { display: flex; gap: 12px; align-items: flex-start; color: var(--text-dim); font-size: 0.92rem; }
+  .info-box li .mark {
+    flex: none; width: 22px; height: 22px; border-radius: 7px; margin-top: 1px;
+    display: grid; place-items: center; font-size: 0.75rem; font-weight: 700;
+    background: rgba(245,165,36,0.14); border: 1px solid rgba(245,165,36,0.4); color: var(--warn);
+  }
+  .info-box li .badge { width: 22px; height: 22px; border-radius: 6px; font-size: 0.72rem; margin-top: 1px; cursor: default; }
+  .info-box li b { color: var(--text); font-weight: 600; }
+
+  footer { border-top: 1px solid var(--border); margin-top: 30px; }
+  footer .wrap { padding-top: 22px; padding-bottom: 30px; text-align: center; color: var(--text-faint); font-size: 0.85rem; }
+  footer strong { color: var(--text-dim); font-weight: 600; }
+
+  @media (max-width: 760px) {
+    .info-box { grid-template-columns: 1fr; }
+    .seg { display: none; }
+    .sort-select { display: block; }
+    .toolbar { align-items: stretch; }
+    .sort-group { width: 100%; justify-content: space-between; }
+    .sort-group select { flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="owner">
+      <span class="dot"></span>
+      <span>Hemsidan är gjord av och ägs av <strong>TopSeccret</strong></span>
+    </div>
+  </div>
+</header>
+
+<div class="nav-wrap">
+  <div class="wrap">
+    <nav role="tablist" aria-label="Kategorier">
+      <button class="tab active" role="tab" data-view="start">Start</button>
+      <button class="tab" role="tab" data-view="all">Alla Items</button>
+      <button class="tab" role="tab" data-view="top">TopSeccrets Items</button>
+      <button class="tab" role="tab" data-view="max">maxaren123 items</button>
+    </nav>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+
+    <div class="banner" role="note">
+      <div class="icon">i</div>
+      <p>
+        Det kan finnas andra items i shopen som vi inte har lagt upp än.
+        Hemsidan uppdaterades senast:
+        <span class="date">2026-10-20</span>
+      </p>
+    </div>
+
+    <section id="view"></section>
+
+    <section class="info-section" aria-label="Viktig information">
+      <div class="info-box">
+        <div>
+          <h4>Viktigt att veta</h4>
+          <ul>
+            <li><span class="mark">!</span><span><b>Kolla alltid priset i butiken i spelet innan du köper.</b> Priset kan ha ändrats utan att hemsidan hunnit uppdateras.</span></li>
+            <li><span class="mark">!</span><span><b>Om priset verkar osannolikt billigt eller dyrt, säg till TopSeccret direkt.</b> Någon kan ha ändrat priserna obehörigt.</span></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Förklaringar</h4>
+          <ul>
+            <li><span class="badge" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-strong);color:var(--gold)">D</span><span><b>D = Diamanter</b> (Serverns valuta).</span></li>
+            <li><span class="badge t">T</span><span><b>Märke T</b> – Item från TopSeccret.</span></li>
+            <li><span class="badge m">M</span><span><b>Märke M</b> – Item från maxaren123.</span></li>
+            <li><span class="badge w" style="background:rgba(245,165,36,0.14);border:1px solid rgba(245,165,36,0.4)">⚠️</span><span><b>Inget bra pris</b> – Finns billigare någon annanstans.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    Gjord av och ägd av <strong>TopSeccret</strong> · Uppdaterad 2026-10-20
+  </div>
+</footer>
+
+<script>
+  const PRODUCTS = [
+    { name: "Dirt",                      price: 1,  unit: "2 Stackar" },
+    { name: "End Stone",                 price: 2,  unit: "Stack" },
+    { name: "Cobblestone",               price: 1,  unit: "2 Stackar" },
+    { name: "Powder Snow",               price: 3,  unit: "Styck" },
+    { name: "Slimeballs",                price: 2,  unit: "8 Stycken" },
+    { name: "Phantom Membrane",          price: 3,  unit: "Styck" },
+    { name: "Cocoa Beans",               price: 1,  unit: "8 Stycken" },
+    { name: "Kelp",                      price: 1,  unit: "16 Stycken" },
+    { name: "Nether Wart",               price: 1,  unit: "8 Styck" },
+    { name: "Sugar Cane",                price: 1,  unit: "16 Stycken" },
+    { name: "Spire Armor Trim",          price: 10, unit: "Styck" },
+    { name: "Regeneration Potion (22s)", price: 1,  unit: "Styck", info: "Drickbar" },
+    { name: "Totem of Undying",          price: 8,  unit: "Styck" },
+    { name: "Obsidian",                  price: 6,  unit: "16 Stycken" },
+    { name: "Elytra med Mending",        price: 85, unit: "Styck", noGoodPrice: true },
+    { name: "Bundle",                    price: 1,  unit: "Styck" },
+    { name: "Netherite Upgrade",         price: 9,  unit: "Styck" },
+    { name: "Sadel",                     price: 1,  unit: "2 Stycken" },
+    { name: "Fire Resistance Potion (3m)", price: 1, unit: "Styck", info: "Drickbar" },
+    { name: "Healing Potion",            price: 1,  unit: "Styck", info: "Drickbar" }
+  ].map(p => ({ ...p, owner: "T" }));
+
+  const sorters = {
+    alpha:     (a, b) => a.name.localeCompare(b.name, "sv"),
+    priceDesc: (a, b) => b.price - a.price || a.name.localeCompare(b.name, "sv"),
+    priceAsc:  (a, b) => a.price - b.price || a.name.localeCompare(b.name, "sv")
+  };
+
+  const SORT_OPTIONS = [
+    { key: "alpha",     label: "Alfabetisk (A–Ö)" },
+    { key: "priceDesc", label: "Pris: Dyrast först" },
+    { key: "priceAsc",  label: "Pris: Billigast först" }
+  ];
+
+  const state = { view: "start", sort: "alpha" };
+  const viewEl = document.getElementById("view");
+
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  function getItems(view) {
+    if (view === "all" || view === "top") return PRODUCTS.filter(p => view === "all" || p.owner === "T");
+    return [];
+  }
+
+  function cardHTML(p, i) {
+    const badges =
+      `<span class="badge t" title="TopSeccrets item">T</span>` +
+      (p.noGoodPrice ? `<span class="badge w" title="Inget bra pris – finns billigare någon annanstans">⚠️</span>` : "");
+    const note = p.noGoodPrice ? `<span class="foot-text">Inget bra pris</span>` : "";
+    return `
+      <article class="card" style="animation-delay:${Math.min(i * 25, 400)}ms">
+        <h3>${esc(p.name)}</h3>
+        <div class="price-row">
+          <span class="price">${p.price}<small>D</small></span>
+          <span class="unit">/ ${esc(p.unit)}</span>
+        </div>
+        ${p.info ? `<span class="info">${esc(p.info)}</span>` : ""}
+        <div class="card-foot">${badges}${note}</div>
+      </article>`;
+  }
+
+  function toolbarHTML(count) {
+    const btns = SORT_OPTIONS.map(o =>
+      `<button class="sort-btn ${state.sort === o.key ? "active" : ""}" data-sort="${o.key}">${o.label}</button>`).join("");
+    const opts = SORT_OPTIONS.map(o =>
+      `<option value="${o.key}" ${state.sort === o.key ? "selected" : ""}>${o.label}</option>`).join("");
+    return `
+      <div class="toolbar">
+        <span class="count">${count} produkter</span>
+        <div class="sort-group">
+          <span class="sort-label">Sortera</span>
+          <div class="seg" role="group" aria-label="Sortera produkter">${btns}</div>
+          <select class="sort-select" aria-label="Sortera produkter">${opts}</select>
+        </div>
+      </div>`;
+  }
+
+  function startHTML() {
+    return `
+      <p class="intro">Välkommen till shopen. Här hittar du <strong>${PRODUCTS.length} items</strong> med aktuella priser i serverns valuta. Välj en kategori för att komma igång.</p>
+      <div class="tiles">
+        <button class="tile" data-go="all">
+          <div class="top"><h3>Alla Items</h3></div>
+          <p>Hela sortimentet på ett ställe, med sortering efter namn och pris.</p>
+          <span class="arrow">Visa alla →</span>
+        </button>
+        <button class="tile" data-go="top">
+          <div class="top"><h3>TopSeccrets Items</h3><span class="badge t">T</span></div>
+          <p>Items från TopSeccret.</p>
+          <span class="arrow">Visa items →</span>
+        </button>
+        <button class="tile" data-go="max">
+          <div class="top"><h3>maxaren123 items</h3><span class="badge m">M</span></div>
+          <p>Items från maxaren123.</p>
+          <span class="arrow">Visa items →</span>
+        </button>
+      </div>`;
+  }
+
+  function emptyHTML() {
+    return `
+      <div class="empty">
+        <span class="badge m">M</span>
+        <p>Finns inga tillgängliga produkter just nu</p>
+      </div>`;
+  }
+
+  function render() {
+    document.querySelectorAll(".tab").forEach(t => {
+      const on = t.dataset.view === state.view;
+      t.classList.toggle("active", on);
+      t.setAttribute("aria-selected", on);
+    });
+
+    if (state.view === "start") { viewEl.innerHTML = startHTML(); return; }
+
+    if (state.view === "max") { viewEl.innerHTML = emptyHTML(); return; }
+
+    const items = getItems(state.view).slice().sort(sorters[state.sort]);
+    viewEl.innerHTML = toolbarHTML(items.length) +
+      `<div class="grid">${items.map(cardHTML).join("")}</div>`;
+  }
+
+  function setView(v) {
+    state.view = v;
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelector("nav").addEventListener("click", e => {
+    const t = e.target.closest(".tab");
+    if (t) setView(t.dataset.view);
+  });
+
+  viewEl.addEventListener("click", e => {
+    const s = e.target.closest("[data-sort]");
+    if (s) { state.sort = s.dataset.sort; render(); return; }
+    const g = e.target.closest("[data-go]");
+    if (g) setView(g.dataset.go);
+  });
+
+  viewEl.addEventListener("change", e => {
+    if (e.target.matches(".sort-select")) { state.sort = e.target.value; render(); }
+  });
+
+  render();
+</script>
+</body>
+</html>
